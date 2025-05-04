@@ -3,6 +3,7 @@
 
 [ ] - Email and Password
 [ ] - Secondary Storage
+[ ] - Social Sign On
 [ ] - Passkeys
 [ ] - Two Factor Authentication (2FA)
 [ ] - Magic Link

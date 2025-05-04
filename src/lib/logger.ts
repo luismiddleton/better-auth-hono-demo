@@ -1,18 +1,18 @@
 import { createMiddleware } from "hono/factory";
 import { pino as createLogger } from "pino";
 
-export const loggerBase = createLogger({
+export const logger = createLogger({
   transport: {
     target: "pino-pretty",
   },
 });
 
-export const logger = createMiddleware(async (c, next) => {
+export const honoLogger = createMiddleware(async (c, next) => {
   const requestId = c.get("requestId");
-  const logger = loggerBase.child({ requestId }); // Hono automatically generates a request ID
+  const childLogger = logger.child({ requestId }); // Hono automatically generates a request ID
 
   // Attach the logger to the Hono context
-  c.set("logger", logger);
+  c.set("logger", childLogger);
 
   const startTime = Date.now();
 
@@ -23,7 +23,7 @@ export const logger = createMiddleware(async (c, next) => {
     const responseTime = endTime - startTime;
 
     // Log the request and response details
-    logger.info(
+    childLogger.info(
       {
         req: {
           method: c.req.method,

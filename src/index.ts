@@ -1,48 +1,39 @@
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
-import { requestId, type RequestIdVariables } from "hono/request-id";
-import { auth } from "./lib/auth.js";
-import { pino } from "pino";
-import type { IncomingMessage, ServerResponse } from "node:http";
+import cluster from "node:cluster";
+import os from "node:os";
 import { logger } from "./lib/logger.js";
-import { cors } from "hono/cors";
+import { app } from "./app.js";
 
-type Bindings = {
-  incoming: IncomingMessage;
-  outgoing: ServerResponse;
-};
+if (cluster.isPrimary) {
+  logger.info(`Master process ${process.pid} is running`);
 
-type Variables = RequestIdVariables & {
-  logger: pino.BaseLogger;
-};
+  // Get number of CPUs
+  const numOfCpus = os.cpus().length;
 
-const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
-
-app.use(requestId());
-app.use(logger);
-app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
-app.use(
-  "/api/auth/*", // or replace with "*" to enable cors for all routes
-  cors({
-    origin: "http://localhost:3001", // replace with your origin
-    allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["POST", "GET", "OPTIONS"],
-    exposeHeaders: ["Content-Length"],
-    maxAge: 600,
-    credentials: true,
-  })
-);
-
-app.get("/healthcheck", (c) => {
-  return c.text("Ok!");
-});
-
-serve(
-  {
-    fetch: app.fetch,
-    port: 3000,
-  },
-  (info) => {
-    console.log(`Server is running on http://localhost:${info.port}`);
+  // Fork workers.
+  for (let i = 0; i < numOfCpus; i++) {
+    cluster.fork();
   }
-);
+
+  cluster.on("exit", (worker, code, signal) => {
+    logger.info(
+      `Worker ${worker.process.pid} died with code ${code} and signal ${signal}`
+    );
+    logger.info("Starting a new worker...");
+  });
+
+} else {
+  // Worker process
+  logger.info(`Worker process ${process.pid} is running`);
+
+  // Serve the app
+  serve(
+    {
+      fetch: app.fetch,
+      port: 3000,
+    },
+    (info) => {
+      logger.info(`Server is running on http://localhost:${info.port}`);
+    }
+  );
+}

@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { openAPI, twoFactor } from "better-auth/plugins";
+import { admin, openAPI, twoFactor } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import Database from "better-sqlite3";
 
@@ -8,5 +8,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [openAPI(), passkey(), twoFactor()],
+  plugins: [openAPI(), passkey(), twoFactor(), admin()],
 });

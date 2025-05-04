@@ -1,11 +1,25 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { logger } from "hono/logger";
+import { requestId, type RequestIdVariables } from "hono/request-id";
 import { auth } from "./lib/auth.js";
+import { pinoHttp } from "pino-http";
+import { pino } from "pino";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { logger, loggerBase } from "./lib/logger.js";
 
-const app = new Hono();
+type Bindings = {
+  incoming: IncomingMessage;
+  outgoing: ServerResponse;
+};
 
-app.use(logger());
+type Variables = RequestIdVariables & {
+  logger: pino.BaseLogger;
+};
+
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+app.use(requestId());
+app.use(logger);
 
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 

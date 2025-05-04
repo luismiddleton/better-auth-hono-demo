@@ -6,4 +6,3 @@ export const auth = betterAuth({
   database: new Database("./sqlite.db"),
   plugins: [openAPI()],
 });
-

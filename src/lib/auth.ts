@@ -7,6 +7,7 @@ export const auth = betterAuth({
   database: new Database("./sqlite.db"),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false,
   },
   plugins: [openAPI(), passkey(), twoFactor(), admin()],
 });

@@ -1,8 +1,10 @@
-```
-npm install
-npm run dev
-```
+# Better Auth - Hono (Demo)
+## Todos
 
-```
-open http://localhost:3000
-```
+[ ] - Email and Password
+[ ] - Secondary Storage
+[ ] - Passkeys
+[ ] - Two Factor Authentication (2FA)
+[ ] - Magic Link
+[ ] - Email OTP
+[x] - OpenApi

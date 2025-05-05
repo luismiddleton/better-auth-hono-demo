@@ -7,7 +7,7 @@ export const logger = createLogger({
   },
 });
 
-export const honoLogger = createMiddleware(async (c, next) => {
+export const loggerMiddleware = createMiddleware(async (c, next) => {
   const requestId = c.get("requestId");
   const childLogger = logger.child({ requestId }); // Hono automatically generates a request ID
 

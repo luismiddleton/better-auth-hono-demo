@@ -3,7 +3,7 @@ import { requestId, type RequestIdVariables } from "hono/request-id";
 import { auth } from "./lib/auth.js";
 import { pino } from "pino";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { honoLogger } from "./lib/logger.js";
+import { loggerMiddleware } from "./lib/logger.js";
 import { cors } from "hono/cors";
 
 type Bindings = {
@@ -18,7 +18,7 @@ type Variables = RequestIdVariables & {
 export const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 app.use(requestId());
-app.use(honoLogger);
+app.use(loggerMiddleware);
 app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
 app.use(
   "/api/auth/*", // or replace with "*" to enable cors for all routes

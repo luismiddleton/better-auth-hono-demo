@@ -32,6 +32,11 @@ app.use(
   })
 );
 
+app.get("/openapi", async (c) => {
+  const schema = await auth.api.generateOpenAPISchema();
+  return c.json(schema);
+});
+
 app.get("/healthcheck", (c) => {
   return c.text("Ok!");
 });
